@@ -1,0 +1,15 @@
+{
+  "name": "yolodice-api",
+  "version": "0.1.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "RGBKey <rgbkey@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bitcore-message": "^1.0.4"
+  },
+  "optionalDependencies": {}
+}
