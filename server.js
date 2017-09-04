@@ -35,8 +35,8 @@ class YOLOdice extends EventEmitter {
         this.transport = tls.connect({
            host: this.host,
            port: this.port,
-           key: fs.readFileSync(__dirname + '/private.key'),
-           cert: fs.readFileSync(__dirname + './public.cert')
+           key: fs.readFileSync('/private.key'),
+           cert: fs.readFileSync('./public.cert')
         });
         this.transport.setEncoding('utf8');
         this.transport.on('secureConnect', () => {
