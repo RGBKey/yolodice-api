@@ -17,12 +17,14 @@ class YOLOdice extends EventEmitter {
      * Creates an instance of YOLOdice.
      * 
      * @param {string} key - A WIF format Bitcoin private key used to sign the login request
+     * @param {Buffer} privateKey - The private key to supply to TLS.connect
+     * @param {Buffer} publicCert - The certificate to supply to TLS.connect
      * @param {Object} [options] - An optional object to change some aspects of the server
      * @param {string} [options.host] - The host to connect to (defaults to api.yolodice.com)
      * @param {number} [options.port] - The port to connect to (defaults to 4444)
      * @memberof YOLOdice
      */
-    constructor(key, options) {
+    constructor(key, privateKey, publicCert, options) {
         super();
         this.host = 'api.yolodice.com';
         this.port = 4444;
@@ -35,8 +37,8 @@ class YOLOdice extends EventEmitter {
         this.transport = tls.connect({
            host: this.host,
            port: this.port,
-           key: fs.readFileSync('/private.key'),
-           cert: fs.readFileSync('./public.cert')
+           key: privateKey,
+           cert: publicCert
         });
         this.transport.setEncoding('utf8');
         this.transport.on('secureConnect', () => {
