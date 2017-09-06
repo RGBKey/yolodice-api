@@ -97,7 +97,7 @@ The class does most of the legwork for you here, it will automatically add an `i
         * ["loggedIn"](#YOLOdice+event_loggedIn)
     * _static_
         * [.YOLOdice](#YOLOdice.YOLOdice)
-            * [new YOLOdice(key, privateKey, publicCert, [options])](#new_YOLOdice.YOLOdice_new)
+            * [new YOLOdice(key, [options])](#new_YOLOdice.YOLOdice_new)
     * _inner_
         * [~responseHandler](#YOLOdice..responseHandler) : <code>function</code>
 
@@ -110,15 +110,13 @@ A class that handles connections to the YOLOdice API.
 **Kind**: static class of [<code>YOLOdice</code>](#YOLOdice)  
 <a name="new_YOLOdice.YOLOdice_new"></a>
 
-#### new YOLOdice(key, privateKey, publicCert, [options])
+#### new YOLOdice(key, [options])
 Creates an instance of YOLOdice.
 
 
 | Param | Type | Description |
 | --- | --- | --- |
 | key | <code>string</code> | A WIF format Bitcoin private key used to sign the login request |
-| privateKey | <code>Buffer</code> | The private key to supply to TLS.connect |
-| publicCert | <code>Buffer</code> | The certificate to supply to TLS.connect
 | [options] | <code>Object</code> | An optional object to change some aspects of the server |
 | [options.host] | <code>string</code> | The host to connect to (defaults to api.yolodice.com) |
 | [options.port] | <code>number</code> | The port to connect to (defaults to 4444) |
