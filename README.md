@@ -9,25 +9,26 @@ npm install yolodice-api --save
 ```
 
 ```javascript
-const fs = require('fs');
-const YOLOdice = require('yolodice-api');
-
-let client = new YOLOdice('L5L8LpKXVkGBEdCUtTjGePyHQe7zvbPjEmiiehenTWGbyzfKETYw',
-    fs.readFileSync(__dirname + '/private.key'),
-    fs.readFileSync(__dirname + '/public.cert'));
+const YOLOdice = require('./server.js');
+let client = new YOLOdice('YOUR_API_PRIVATE_KEY');
 
 client.on('loggedIn', (user) => {
     console.log(`Logged in as (${user.id})${user.name}`);
 });
 
+client.on('error', (err) => {
+    console.dir(err);
+});
+
 process.on('SIGINT', () => {
     client.quit();
 });
+
 ```
 
 ```
 A:\Code\yolodice-api>node app
-Logged in as (21102)RGBKey
+Logged in as (12345)YourName
 ```
 
 Nearly all the methods that take a callback (with the exception of `getBalance()`) return the entire server response as the first and only argument to the callback function. These objects follow the JSON-RPC 2.0 spec, which means they all have an `id` property and have a `result` property on success and an `error` property on failure. To access the info, you should in most cases check to see if the response has a `result` property and parse the data from there.

@@ -24,7 +24,7 @@ class YOLOdice extends EventEmitter {
      * @param {number} [options.port] - The port to connect to (defaults to 4444)
      * @memberof YOLOdice
      */
-    constructor(key, privateKey, publicCert, options) {
+    constructor(key, options) {
         super();
         this.host = 'api.yolodice.com';
         this.port = 4444;
@@ -36,9 +36,7 @@ class YOLOdice extends EventEmitter {
         this.initVariables();
         this.transport = tls.connect({
            host: this.host,
-           port: this.port,
-           key: privateKey,
-           cert: publicCert
+           port: this.port
         });
         this.transport.setEncoding('utf8');
         this.transport.on('secureConnect', () => {
