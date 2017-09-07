@@ -9,7 +9,7 @@ npm install yolodice-api --save
 ```
 
 ```javascript
-const YOLOdice = require('./server.js');
+const YOLOdice = require('yolodice-api');
 let client = new YOLOdice('YOUR_API_PRIVATE_KEY');
 
 client.on('loggedIn', (user) => {
