@@ -89,7 +89,7 @@ class YOLOdice extends EventEmitter {
      * @instance
      */
     in(data) {
-        //console.log(`<<< ${data}`);
+        console.log(`<<< ${data}`);
         while(data.length > 0) {
             let i = data.indexOf('\n');
             if(i > 0) {
@@ -143,7 +143,7 @@ class YOLOdice extends EventEmitter {
      * @instance
      */
     out(data) {
-        //console.log(`>>> ${JSON.stringify(data)}`);
+        console.log(`>>> ${JSON.stringify(data)}`);
         this.transport.write(JSON.stringify(data)+'\n');
     }
 
@@ -299,7 +299,6 @@ class YOLOdice extends EventEmitter {
      * @instance
      */
     createBet(attrs, includeDatas, callback) {
-        attrs.target += 1;
         this.send({
             method: 'create_bet',
             params: {
