@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 //-----------------------//
 const bitcore = require('bitcore-lib');
 const Message = require('bitcore-message');
+const WebSocket = require('ws');
 
 /**
  * A class that handles connections to the YOLOdice API.
@@ -28,11 +29,51 @@ class YOLOdice extends EventEmitter {
         super();
         this.host = 'api.yolodice.com';
         this.port = 4444;
+        this.wshost = 'wss://ws.yolodice.com:8081/';
         if(options) {
             this.host = options.host || this.host;
             this.port = options.port || this.port;
         }
         this.key = bitcore.PrivateKey.fromWIF(key);
+        this.initVariables();
+        this.ws = new WebSocket(this.wshost, {
+            origin: 'https://yolodice.com',
+            host: 'ws.yolodice.com:8081'
+        });
+        this.ws.on('close', (code, reason) => {
+            console.log(`WS Closed[${code}]: ${reason}`);
+        });
+        this.ws.on('error', (err) => {
+            console.dir(err);
+        });
+        this.ws.on('open', () => {
+            this.emit('wsopen');
+        });
+        this.ws.on('message', (data) => {
+            this.in(data);
+        });
+        this.transport = tls.connect({
+           host: this.host,
+           port: this.port
+        });
+        this.transport.setEncoding('utf8');
+        this.transport.on('secureConnect', () => {
+            this.connected();
+        });
+        this.transport.on('close', (withError) => {
+            // Attempt to reconnect
+            this.reconnect();
+        });
+        this.transport.on('error', (err) => {
+            // Attempt to reconnect
+            this.reconnect();
+        });
+        this.transport.on('data', (data) => {
+            this.in(data);
+        });
+    }
+
+    reconnect() {
         this.initVariables();
         this.transport = tls.connect({
            host: this.host,
@@ -46,10 +87,32 @@ class YOLOdice extends EventEmitter {
             
         });
         this.transport.on('error', (err) => {
-            this.emit('error', err);
+            // Attempt to reconnect
+            this.reconnect();
         });
         this.transport.on('data', (data) => {
             this.in(data);
+        });
+    }
+
+    wsReconnect() {
+        let self = this;
+        this.initVariables();
+        this.ws = new WebSocket(this.wshost, {
+            origin: 'https://yolodice.com',
+            host: 'ws.yolodice.com:8081'
+        });
+        this.ws.on('close', (code, reason) => {
+            self.wsReconnect();
+        });
+        this.ws.on('error', (err) => {
+            self.wsReconnect();
+        });
+        this.ws.on('open', () => {
+            self.emit('wsopen');
+        });
+        this.ws.on('message', (data) => {
+            self.in(data);
         });
     }
 
@@ -89,7 +152,7 @@ class YOLOdice extends EventEmitter {
      * @instance
      */
     in(data) {
-        console.log(`<<< ${data}`);
+        // console.log(`<<< ${data}`);
         while(data.length > 0) {
             let i = data.indexOf('\n');
             if(i > 0) {
@@ -114,8 +177,12 @@ class YOLOdice extends EventEmitter {
     handle(res) {
         if(this.requests[res.id]) {
             let req = this.requests[res.id];
-            if(req._callback) {
+            if(res.error && res.error.code === 403 && !req.failedOnce) {
+                req.failedOnce = true;
+                this.send(req, false, true);
+            } else if(req._callback) {
                 req._callback(res);
+                delete this.requests[res.id];
             } else {
                 switch(this.requests[res.id].method) {
                     case 'generate_auth_challenge':
@@ -125,11 +192,14 @@ class YOLOdice extends EventEmitter {
                         require('./handlers/auth_by_address.js')(this, res);
                         break;
                 }
+                delete this.requests[res.id];
             }
-            delete this.requests[res.id];
         } else {
             switch(res.method) {
                 case 'update_user_data':
+                    break;
+                case 'new_chat_message':
+                    require('./handlers/new_chat_message.js')(this, res);
                     break;
             }
         }
@@ -142,9 +212,13 @@ class YOLOdice extends EventEmitter {
      * @memberof YOLOdice
      * @instance
      */
-    out(data) {
-        console.log(`>>> ${JSON.stringify(data)}`);
-        this.transport.write(JSON.stringify(data)+'\n');
+    out(data, ws) {
+        // console.log(`>>> ${JSON.stringify(data)}`);
+        if(!ws) {
+            this.transport.write(JSON.stringify(data)+'\n');
+        } else {
+            this.ws.send(JSON.stringify(data)+'\n');
+        }        
     }
 
     /**
@@ -156,12 +230,12 @@ class YOLOdice extends EventEmitter {
      * @memberof YOLOdice
      * @instance
      */
-    send(req, callback) {
+    send(req, callback, ws) {
         req.id = this.id++;
         if(callback) {
             req._callback = callback;
         }
-        this.out(req);
+        this.out(req, ws);
         this.requests[req.id] = req;
     }
 
@@ -211,6 +285,7 @@ class YOLOdice extends EventEmitter {
      */
     quit() {
         this.transport.end();
+        this.ws.close();
         process.exit();
     }
 
@@ -228,6 +303,12 @@ class YOLOdice extends EventEmitter {
     readSiteData(callback) {
         this.send({
             method: 'read_site_data'
+        }, callback);
+    }
+
+    readBonusData(callback) {
+        this.send({
+            method: 'read_bonus_data'
         }, callback);
     }
 
@@ -696,6 +777,33 @@ class YOLOdice extends EventEmitter {
                     id
                 },
                 attrs
+            }
+        }, callback);
+    }
+
+    subscribe() {
+        this.send({
+            method: 'subscribe'
+        });
+    }
+
+    createChatMessage(channel, body, callback) {
+        this.send({
+            method: 'create_chat_message',
+            params: {
+                attrs: {
+                    channel_id: channel,
+                    body: body
+                }
+            }
+        }, callback);
+    }
+
+    joinChatChannel(channel, callback) {
+        this.send({
+            method: 'join_chat_channel',
+            params: {
+                channel_id: channel
             }
         }, callback);
     }
