@@ -4,7 +4,6 @@ const EventEmitter = require('events');
 //-----------------------//
 const bitcore = require('bitcore-lib');
 const Message = require('bitcore-message');
-const WebSocket = require('ws');
 
 /**
  * A class that handles connections to the YOLOdice API.
@@ -29,29 +28,12 @@ class YOLOdice extends EventEmitter {
         super();
         this.host = 'api.yolodice.com';
         this.port = 4444;
-        this.wshost = 'wss://ws.yolodice.com:8081/';
         if(options) {
             this.host = options.host || this.host;
             this.port = options.port || this.port;
         }
         this.key = bitcore.PrivateKey.fromWIF(key);
         this.initVariables();
-        this.ws = new WebSocket(this.wshost, {
-            origin: 'https://yolodice.com',
-            host: 'ws.yolodice.com:8081'
-        });
-        this.ws.on('close', (code, reason) => {
-            console.log(`WS Closed[${code}]: ${reason}`);
-        });
-        this.ws.on('error', (err) => {
-            console.dir(err);
-        });
-        this.ws.on('open', () => {
-            this.emit('wsopen');
-        });
-        this.ws.on('message', (data) => {
-            this.in(data);
-        });
         this.transport = tls.connect({
            host: this.host,
            port: this.port
@@ -92,27 +74,6 @@ class YOLOdice extends EventEmitter {
         });
         this.transport.on('data', (data) => {
             this.in(data);
-        });
-    }
-
-    wsReconnect() {
-        let self = this;
-        this.initVariables();
-        this.ws = new WebSocket(this.wshost, {
-            origin: 'https://yolodice.com',
-            host: 'ws.yolodice.com:8081'
-        });
-        this.ws.on('close', (code, reason) => {
-            self.wsReconnect();
-        });
-        this.ws.on('error', (err) => {
-            self.wsReconnect();
-        });
-        this.ws.on('open', () => {
-            self.emit('wsopen');
-        });
-        this.ws.on('message', (data) => {
-            self.in(data);
         });
     }
 
@@ -177,10 +138,7 @@ class YOLOdice extends EventEmitter {
     handle(res) {
         if(this.requests[res.id]) {
             let req = this.requests[res.id];
-            if(res.error && res.error.code === 403 && !req.failedOnce) {
-                req.failedOnce = true;
-                this.send(req, false, true);
-            } else if(req._callback) {
+            if(req._callback) {
                 req._callback(res);
                 delete this.requests[res.id];
             } else {
@@ -212,13 +170,9 @@ class YOLOdice extends EventEmitter {
      * @memberof YOLOdice
      * @instance
      */
-    out(data, ws) {
+    out(data) {
         // console.log(`>>> ${JSON.stringify(data)}`);
-        if(!ws) {
-            this.transport.write(JSON.stringify(data)+'\n');
-        } else {
-            this.ws.send(JSON.stringify(data)+'\n');
-        }        
+        this.transport.write(JSON.stringify(data)+'\n');       
     }
 
     /**
@@ -230,12 +184,12 @@ class YOLOdice extends EventEmitter {
      * @memberof YOLOdice
      * @instance
      */
-    send(req, callback, ws) {
+    send(req, callback) {
         req.id = this.id++;
         if(callback) {
             req._callback = callback;
         }
-        this.out(req, ws);
+        this.out(req);
         this.requests[req.id] = req;
     }
 
@@ -249,14 +203,16 @@ class YOLOdice extends EventEmitter {
      * @instance
      */
     sign(msg) {
-        this.emit('sign', msg);
-        msg = Message(msg);
-        let sig = msg.sign(this.key);
-        if(msg.verify(this.key.toAddress(), sig)){
-            return sig;
-        } else {
-            this.emit('error', new Error('Created invalid signature'));
-            this.quit();
+        if(msg) {
+            this.emit('sign', msg);
+            msg = Message(msg);
+            let sig = msg.sign(this.key);
+            if(msg.verify(this.key.toAddress(), sig)){
+                return sig;
+            } else {
+                this.emit('error', new Error('Created invalid signature'));
+                this.quit();
+            }
         }
     }
 
@@ -285,7 +241,6 @@ class YOLOdice extends EventEmitter {
      */
     quit() {
         this.transport.end();
-        this.ws.close();
         process.exit();
     }
 

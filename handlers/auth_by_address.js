@@ -7,6 +7,6 @@ module.exports = function(self, res) {
         self.emit('loggedIn', self.user);
         self.loggedIn = true;
     } else {
-        console.log('!!! Auth failed !!!');
+        // console.log('!!! Auth failed !!!');
     }
 };
