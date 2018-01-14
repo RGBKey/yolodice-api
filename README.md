@@ -1,15 +1,15 @@
-# yolodice-api
+# YOLOdice-api
 
-An API wrapper for the [YOLOdice ](https://yolodice.com/r?2FYJC-7JZ)[API](https://dev.yolodice.com)
+An API wrapper for the [YOLOdice ](https://YOLOdice.com/r?2FYJC-7JZ)[API](https://dev.YOLOdice.com)
 
 Sample usage:
 
 ```
-npm install yolodice-api --save
+npm install YOLOdice-api --save
 ```
 
 ```javascript
-const YOLOdice = require('yolodice-api');
+const YOLOdice = require('YOLOdice-api');
 let client = new YOLOdice('YOUR_API_PRIVATE_KEY');
 
 client.on('loggedIn', (user) => {
@@ -27,7 +27,7 @@ process.on('SIGINT', () => {
 ```
 
 ```
-A:\Code\yolodice-api>node app
+A:\Code\YOLOdice-api>node app
 Logged in as (12345)YourName
 ```
 
@@ -69,6 +69,9 @@ The class does most of the legwork for you here, it will automatically add an `i
         * [.readUser(id, [callback])](#YOLOdice+readUser)
         * [.readUserData(id, [callback])](#YOLOdice+readUserData)
         * [.getBalance([callback])](#YOLOdice+getBalance)
+        * [.readUserCoinData(id, [callback])](#YOLOdice+readUserCoinData)
+        * [.listUserCoinDatas(id, [callback])](#YOLOdice+listUserCoinDatas)
+        * [.resetSessionCounters([coin], [callback])](#YOLOdice+resetSessionCounters)
         * [.createBet(attrs, [includeDatas], [callback])](#YOLOdice+createBet)
         * [.readBet(id, [callback])](#YOLOdice+readBet)
         * [.listBets([userId], [options], [callback])](#YOLOdice+listBets)
@@ -77,7 +80,8 @@ The class does most of the legwork for you here, it will automatically add an `i
         * [.listSeeds([options], [callback])](#YOLOdice+listSeeds)
         * [.createSeed(attrs, [callback])](#YOLOdice+createSeed)
         * [.patchSeed(id, attrs, [callback])](#YOLOdice+patchSeed)
-        * [.readDepositAddress([callback])](#YOLOdice+readDepositAddress)
+        * [.readDepositAddress(coin, [callback])](#YOLOdice+readDepositAddress)
+        * [.listDepositAddresses(coin, callback)](#YOLOdice+listDepositAddresses)
         * [.readDeposit(id, [callback])](#YOLOdice+readDeposit)
         * [.listDeposits([options], [callback])](#YOLOdice+listDeposits)
         * [.readWithdrawingConfig([callback])](#YOLOdice+readWithdrawingConfig)
@@ -89,7 +93,7 @@ The class does most of the legwork for you here, it will automatically add an `i
         * [.cancelWithdrawal(id, [callback])](#YOLOdice+cancelWithdrawal)
         * [.readInvestment(id, [callback])](#YOLOdice+readInvestment)
         * [.listInvestments([status], [callback])](#YOLOdice+listInvestments)
-        * [.createInvestment(attrs, leverage, [callback])](#YOLOdice+createInvestment)
+        * [.createInvestment(attrs, coin, leverage, [callback])](#YOLOdice+createInvestment)
         * [.patchInvestment(id, attrs, [callback])](#YOLOdice+patchInvestment)
         * [.ping([callback])](#YOLOdice+ping)
         * ["error"](#YOLOdice+event_error)
@@ -97,7 +101,7 @@ The class does most of the legwork for you here, it will automatically add an `i
         * ["loggedIn"](#YOLOdice+event_loggedIn)
     * _static_
         * [.YOLOdice](#YOLOdice.YOLOdice)
-            * [new YOLOdice(key, [options])](#new_YOLOdice.YOLOdice_new)
+            * [new YOLOdice(key, privateKey, publicCert, [options])](#new_YOLOdice.YOLOdice_new)
     * _inner_
         * [~responseHandler](#YOLOdice..responseHandler) : <code>function</code>
 
@@ -198,6 +202,42 @@ An abstraction for readUserData on yourself
 | --- | --- | --- |
 | [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
 
+<a name="YOLOdice+readUserCoinData"></a>
+
+### YOLOdice.readUserCoinData(id, [callback])
+Returns some coin-specific user data
+
+**Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| id | <code>string</code> | A string composed of the user id and the coin |
+| [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
+
+<a name="YOLOdice+listUserCoinDatas"></a>
+
+### YOLOdice.listUserCoinDatas(id, [callback])
+Returns an array of coin datas for the given user
+
+**Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| id | <code>number</code> | The user id |
+| [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
+
+<a name="YOLOdice+resetSessionCounters"></a>
+
+### YOLOdice.resetSessionCounters([coin], [callback])
+Resets session counters, optionally only for a specific coin
+
+**Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [coin] | <code>string</code> | The coin to reset |
+| [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
+
 <a name="YOLOdice+createBet"></a>
 
 ### YOLOdice.createBet(attrs, [includeDatas], [callback])
@@ -208,6 +248,7 @@ Creates a bet. Requires the play permission
 | Param | Type | Description |
 | --- | --- | --- |
 | attrs | <code>Object</code> | Bet attributes |
+| attrs.coin | <code>string</code> | The coin to bet with (e.g. 'btc' or 'ltc') |
 | attrs.amount | <code>number</code> | The amount of the bet IN SATOSHIS |
 | attrs.target | <code>number</code> | The target of the bet, in the range [1, 989900] |
 | attrs.range | <code>string</code> | Either 'hi' or 'lo' |
@@ -312,14 +353,27 @@ Updates and returns the current seed
 
 <a name="YOLOdice+readDepositAddress"></a>
 
-### YOLOdice.readDepositAddress([callback])
-Reads the current deposit address for the authenticated user
+### YOLOdice.readDepositAddress(coin, [callback])
+Reads the current deposit address for the authenticated user and coin
 
 **Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
 
 | Param | Type | Description |
 | --- | --- | --- |
+| coin | <code>string</code> | The coin to use |
 | [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
+
+<a name="YOLOdice+listDepositAddresses"></a>
+
+### YOLOdice.listDepositAddresses(coin, callback)
+Lists all user deposit addresses for the given coin
+
+**Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coin | <code>string</code> | The coin to use |
+| callback | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
 
 <a name="YOLOdice+readDeposit"></a>
 
@@ -407,6 +461,7 @@ Creates a withdrawal. Returns the withdrawal (identical format to readWithdrawal
 | Param | Type | Description |
 | --- | --- | --- |
 | attrs | <code>Object</code> | The withdrawal attributes |
+| attrs.coin | <code>string</code> | The coin to withdraw |
 | attrs.to_address | <code>string</code> | The address to send the coins to |
 | attrs.amount | <code>number</code> | The amount to withdrawal IN SATOSHIS |
 | attrs.withdrawal_type | <code>string</code> | 'instant' or 'batch' |
@@ -465,7 +520,7 @@ Lists investments for the logged in user
 
 <a name="YOLOdice+createInvestment"></a>
 
-### YOLOdice.createInvestment(attrs, leverage, [callback])
+### YOLOdice.createInvestment(attrs, coin, leverage, [callback])
 Creates an investment
 
 **Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
@@ -473,6 +528,7 @@ Creates an investment
 | Param | Type | Description |
 | --- | --- | --- |
 | attrs | <code>Object</code> | The investment attributes |
+| coin | <code>string</code> | The coin to invest |
 | attrs.base | <code>number</code> | The initial value of the investment IN SATOSHIS |
 | leverage | <code>number</code> | The leverage of the investment, from 1 to 10 |
 | [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
@@ -501,8 +557,6 @@ Pings the server
 | Param | Type | Description |
 | --- | --- | --- |
 | [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
-
-## Events
 
 <a name="YOLOdice+event_error"></a>
 
