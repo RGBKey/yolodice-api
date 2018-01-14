@@ -554,7 +554,9 @@ class YOLOdice extends EventEmitter {
      * Lists all user deposit addresses for the given coin
      * 
      * @param {string} coin - The coin to use
-     * @param {YOLOdice~responseHandler} callback - The callback
+     * @param {YOLOdice~responseHandler} [callback] - The callback
+     * @memberof YOLOdice
+     * @instance
      */
     listDepositAddresses(coin, callback) {
         this.send({

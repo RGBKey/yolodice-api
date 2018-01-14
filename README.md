@@ -365,7 +365,7 @@ Reads the current deposit address for the authenticated user and coin
 
 <a name="YOLOdice+listDepositAddresses"></a>
 
-### YOLOdice.listDepositAddresses(coin, callback)
+### YOLOdice.listDepositAddresses(coin, [callback])
 Lists all user deposit addresses for the given coin
 
 **Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
@@ -373,7 +373,7 @@ Lists all user deposit addresses for the given coin
 | Param | Type | Description |
 | --- | --- | --- |
 | coin | <code>string</code> | The coin to use |
-| callback | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback |
+| [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
 
 <a name="YOLOdice+readDeposit"></a>
 
