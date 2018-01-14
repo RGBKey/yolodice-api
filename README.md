@@ -5,11 +5,11 @@ An API wrapper for the [YOLOdice ](https://YOLOdice.com/r?2FYJC-7JZ)[API](https:
 Sample usage:
 
 ```
-npm install YOLOdice-api --save
+npm install yolodice-api --save
 ```
 
 ```javascript
-const YOLOdice = require('YOLOdice-api');
+const YOLOdice = require('yolodice-api');
 let client = new YOLOdice('YOUR_API_PRIVATE_KEY');
 
 client.on('loggedIn', (user) => {
@@ -27,7 +27,7 @@ process.on('SIGINT', () => {
 ```
 
 ```
-A:\Code\YOLOdice-api>node app
+>node app
 Logged in as (12345)YourName
 ```
 
