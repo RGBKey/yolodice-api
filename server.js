@@ -66,7 +66,8 @@ class YOLOdice extends EventEmitter {
             this.connected();
         });
         this.transport.on('close', (withError) => {
-            
+            // Attempt to reconnect
+            this.reconnect();
         });
         this.transport.on('error', (err) => {
             // Attempt to reconnect
@@ -323,9 +324,61 @@ class YOLOdice extends EventEmitter {
     }
 
     /**
+     * Returns some coin-specific user data
+     * 
+     * @param {string} id - A string composed of the user id and the coin 
+     * @param {YOLOdice~responseHandler} [callback] - The callback
+     * @memberof YOLOdice
+     * @instance
+     */
+    readUserCoinData(id, callback) {
+        this.send({
+            method: 'read_user_coin_data',
+            params: {
+                selector: {
+                    id
+                }
+            }
+        }, callback);
+    }
+
+    /**
+     * Returns an array of coin datas for the given user
+     * 
+     * @param {number} id - The user id
+     * @param {YOLOdice~responseHandler} [callback] - The callback
+     * @memberof YOLOdice
+     * @instance
+     */
+    listUserCoinDatas(id, callback) {
+        this.send({
+            method: 'list_user_coin_datas',
+            params: {
+                user_id: id
+            }
+        }, callback);
+    }
+
+    /**
+     * Resets session counters, optionally only for a specific coin
+     * 
+     * @param {string} [coin] - The coin to reset
+     * @param {YOLOdice~responseHandler} [callback] - The callback
+     * @memberof YOLOdice
+     * @instance
+     */
+    resetSessionCounters(coin, callback) {
+        this.send({
+            method: 'reset_session_counters',
+            params: coin ? {coin} : {}
+        }, callback);
+    }
+
+    /**
      * Creates a bet. Requires the play permission
      * 
      * @param {Object} attrs - Bet attributes
+     * @param {string} attrs.coin - The coin to bet with (e.g. 'btc' or 'ltc')
      * @param {number} attrs.amount - The amount of the bet IN SATOSHIS
      * @param {number} attrs.target - The target of the bet, in the range [1, 989900]
      * @param {string} attrs.range - Either 'hi' or 'lo'
@@ -481,15 +534,34 @@ class YOLOdice extends EventEmitter {
     }
 
     /**
-     * Reads the current deposit address for the authenticated user
+     * Reads the current deposit address for the authenticated user and coin
      * 
+     * @param {string} coin - The coin to use
      * @param {YOLOdice~responseHandler} [callback] - The callback function
      * @memberof YOLOdice
      * @instance
      */
-    readDepositAddress(callback) {
+    readDepositAddress(coin, callback) {
         this.send({
-            method: 'read_deposit_address'
+            method: 'read_deposit_address',
+            params: {
+                coin
+            }
+        }, callback);
+    }
+
+    /**
+     * Lists all user deposit addresses for the given coin
+     * 
+     * @param {string} coin - The coin to use
+     * @param {YOLOdice~responseHandler} callback - The callback
+     */
+    listDepositAddresses(coin, callback) {
+        this.send({
+            method: 'list_deposit_addresses',
+            params: {
+                coin
+            }
         }, callback);
     }
 
@@ -597,6 +669,7 @@ class YOLOdice extends EventEmitter {
      * Creates a withdrawal. Returns the withdrawal (identical format to readWithdrawal)
      * 
      * @param {Object} attrs - The withdrawal attributes
+     * @param {string} attrs.coin - The coin to withdraw
      * @param {string} attrs.to_address - The address to send the coins to
      * @param {number} attrs.amount - The amount to withdrawal IN SATOSHIS
      * @param {string} attrs.withdrawal_type - 'instant' or 'batch'
@@ -699,6 +772,7 @@ class YOLOdice extends EventEmitter {
      * Creates an investment
      * 
      * @param {Object} attrs - The investment attributes
+     * @param {string} coin - The coin to invest
      * @param {number} attrs.base - The initial value of the investment IN SATOSHIS
      * @param {number} leverage - The leverage of the investment, from 1 to 10
      * @param {YOLOdice~responseHandler} [callback] - The callback function
