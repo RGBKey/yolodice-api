@@ -605,19 +605,6 @@ class YOLOdice extends EventEmitter {
     }
 
     /**
-     * Contains info about withdrawing
-     * 
-     * @param {YOLOdice~responseHandler} [callback] - The callback function
-     * @memberof YOLOdice
-     * @instance
-     */
-    readWithdrawingConfig(callback) {
-        this.send({
-            method: 'read_withdrawing_config'
-        }, callback);
-    }
-
-    /**
      * Reads withdrawal specified by id
      * 
      * @param {number} id - The withdrawal id
