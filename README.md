@@ -195,7 +195,7 @@ Returns more extensive user data
 <a name="YOLOdice+getBalance"></a>
 
 ### YOLOdice.getBalance([callback])
-An abstraction for readUserData on yourself
+An abstraction for listUserCoinDatas on yourself
 
 **Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
 

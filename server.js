@@ -307,16 +307,22 @@ class YOLOdice extends EventEmitter {
     }
 
     /**
-     * An abstraction for readUserData on yourself
+     * An abstraction for listUserCoinDatas on yourself
      * 
      * @param {YOLOdice~responseHandler} [callback] - The callback
      * @memberof YOLOdice
      * @instance
      */
     getBalance(callback) {
-        this.readUserData(this.user.id, (data) => {
+        this.listUserCoinDatas(this.user.id, (data) => {
             if(data.result) {
-                callback(data.result.balance);
+                let result = {};
+                for(let i = 0; i < data.result.length; i++) {
+                    let coin = data.result[i];
+                    let coinName = coin.id.substring(coin.id.length - 3);
+                    result[coinName] = coin.balance;
+                }
+                callback(result);
             } else {
                 this.emit('error', new Error('Error getting user data'));
             }
