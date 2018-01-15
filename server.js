@@ -534,6 +534,19 @@ class YOLOdice extends EventEmitter {
     }
 
     /**
+     * Gets some data about the site, such as coins and withdraw fees
+     * 
+     * @param {YOLOdice~responseHandler} [callback] - The callback function
+     * @memberof YOLOdice
+     * @instance
+     */
+    readConfig(callback) {
+        this.send({
+            method: 'read_config'
+        }, callback);
+    }
+
+    /**
      * Reads the current deposit address for the authenticated user and coin
      * 
      * @param {string} coin - The coin to use

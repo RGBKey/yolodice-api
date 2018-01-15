@@ -80,6 +80,7 @@ The class does most of the legwork for you here, it will automatically add an `i
         * [.listSeeds([options], [callback])](#YOLOdice+listSeeds)
         * [.createSeed(attrs, [callback])](#YOLOdice+createSeed)
         * [.patchSeed(id, attrs, [callback])](#YOLOdice+patchSeed)
+        * [.readConfig([callback])](#YOLOdice+readConfig)
         * [.readDepositAddress(coin, [callback])](#YOLOdice+readDepositAddress)
         * [.listDepositAddresses(coin, callback)](#YOLOdice+listDepositAddresses)
         * [.readDeposit(id, [callback])](#YOLOdice+readDeposit)
@@ -349,6 +350,17 @@ Updates and returns the current seed
 | id | <code>number</code> | The id of the seed to patch |
 | attrs | <code>Object</code> | The attributes to change |
 | attrs.client_seed | <code>string</code> | The client seed. Must be 6-128 chars and [a-zA-Z0-9 \-_] |
+| [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
+
+<a name="YOLOdice+readConfig>
+
+### YOLOdice.readConfig([callback])
+Gets some data about the site, such as coins and withdraw fees
+
+**Kind**: instance method of [<code>YOLOdice</code>](#YOLOdice)  
+
+| Param | Type | Description |
+| --- | --- | --- |
 | [callback] | [<code>responseHandler</code>](#YOLOdice..responseHandler) | The callback function |
 
 <a name="YOLOdice+readDepositAddress"></a>
