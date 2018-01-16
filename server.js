@@ -66,8 +66,7 @@ class YOLOdice extends EventEmitter {
             this.connected();
         });
         this.transport.on('close', (withError) => {
-            // Attempt to reconnect
-            this.reconnect();
+            
         });
         this.transport.on('error', (err) => {
             // Attempt to reconnect
