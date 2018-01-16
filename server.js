@@ -57,6 +57,7 @@ class YOLOdice extends EventEmitter {
 
     reconnect() {
         this.initVariables();
+        this.transport.removeAllListeners();
         this.transport = tls.connect({
            host: this.host,
            port: this.port
